@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bow and Arrow Grammar Game</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>🎯 BOW&ARROW 🎯</h1>
+
+    <div id="paragraph">
+      <p>
+        The ____ fox ____ over the lazy dog. It ____ a bright and sunny ____.
+        The children ____ happily while the birds ____. Everything felt ____ and
+        peaceful.
+      </p>
+    </div>
+
+    <button id="nextButton">Next ➡️</button>
+
+
+    <h3>Choose the correct grammatical words!</h3>
+
+    <div id="bow">
+      <!-- 12 word choices -->
+      <button class="word">quick</button>
+      <button class="word">jumps</button>
+      <button class="word">was</button>
+      <button class="word">day</button>
+      <button class="word">played</button>
+      <button class="word">sang</button>
+      <button class="word">calm</button>
+      <button class="word">went</button>
+      <button class="word">shone</button>
+      <button class="word">bow</button>
+      <button class="word">was</button>
+      <button class="word">daily</button>
+    </div>
+
+    <div id="arrow-section">
+      <button id="shootButton">🏹 Shoot Arrow</button>
+      <p id="result"></p>
+    </div>
+
+    <script src="script.js"></script>
+
+    <div class="arrow-background"></div>
+    <script>
+      const arrowBackground = document.querySelector(".arrow-background");
+
+      function createArrow() {
+        const arrow = document.createElement("div");
+        arrow.classList.add("arrow");
+        arrow.style.setProperty("--start", Math.random());
+        arrow.style.setProperty("--end", Math.random());
+        arrow.style.animationDuration = `${4 + Math.random() * 4}s`;
+        arrow.style.top = Math.random() * 100 + "vh";
+        arrow.style.left = "-100px";
+        arrowBackground.appendChild(arrow);
+
+        setTimeout(() => arrow.remove(), 8000);
+      }
+
+      setInterval(createArrow, 600);
+    </script>
+    <button id="shootBtn">Shoot Arrow</button>
+    <script>
+      const shootButton = document.getElementById("shootBtn");
+
+      shootButton.addEventListener("click", () => {
+        const arrow = document.createElement("div");
+        arrow.classList.add("shooting-arrow");
+        document.body.appendChild(arrow);
+
+        // Animate arrow shooting
+        setTimeout(() => {
+          // Remove arrow after animation
+          arrow.remove();
+
+          // Find a random correct word (simulate "hitting")
+          const bowWords = document.querySelectorAll(".bow-words span");
+          const correctIndex = Math.floor(Math.random() * bowWords.length);
+          const target = bowWords[correctIndex];
+
+          // Flash the hit word
+          target.classList.add("hit");
+          setTimeout(() => target.classList.remove("hit"), 800);
+        }, 1000);
+      });
+    </script>
+    <script>
+      const correctAnswers = ["is", "was", "have", "been", "will", "are"]; // 6 correct grammatical words
+      let currentAnswerIndex = 0;
+
+      function shootNextArrow() {
+        if (currentAnswerIndex >= correctAnswers.length) return; // Stop after 6 arrows
+
+        const arrow = document.createElement("div");
+        arrow.classList.add("shooting-arrow-vertical");
+        document.body.appendChild(arrow);
+
+        const wordToHit = correctAnswers[currentAnswerIndex];
+        const targetWord = Array.from(
+          document.querySelectorAll(".bow-words span")
+        ).find((w) => w.textContent === wordToHit);
+
+        if (!targetWord) return;
+
+        const targetRect = targetWord.getBoundingClientRect();
+        const startX = window.innerWidth / 2;
+        const endX = targetRect.left + targetRect.width / 2;
+        const moveX = endX - startX;
+
+        arrow.animate(
+          [
+            { transform: `translate(-50%, 0)` },
+            { transform: `translate(calc(-50% + ${moveX}px), -400px)` },
+          ],
+          {
+            duration: 1200,
+            easing: "ease-out",
+            fill: "forwards",
+          }
+        );
+
+        setTimeout(() => {
+          targetWord.classList.add("hit");
+          setTimeout(() => targetWord.classList.remove("hit"), 600);
+          arrow.remove();
+          currentAnswerIndex++;
+          setTimeout(shootNextArrow, 1000);
+        }, 1200);
+      }
+
+      // Add the Shoot Arrow button (if not already added)
+      if (!document.getElementById("shootBtn")) {
+        const btn = document.createElement("button");
+        btn.id = "shootBtn";
+        btn.textContent = "Shoot Arrow";
+        document.body.appendChild(btn);
+      }
+
+      document.getElementById("shootBtn").addEventListener("click", () => {
+        currentAnswerIndex = 0;
+        shootNextArrow();
+      });
+    </script>
+  </body>
+</html>
